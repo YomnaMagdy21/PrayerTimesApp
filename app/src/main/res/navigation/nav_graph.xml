@@ -9,4 +9,9 @@
         android:name="com.example.prayertimesapp.firstpage.view.FirstFragment"
         android:label="FirstFragment"
         tools:layout="@layout/fragment_first"/>
+    <fragment
+        android:id="@+id/prayerTimesFragment"
+        android:name="com.example.prayertimesapp.secondpage.view.PrayerTimesFragment"
+        android:label="PrayerTimesFragment"
+        tools:layout="@layout/fragment_prayer_times"/>
 </navigation>

@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.example.prayertimesapp.R
 import com.example.prayertimesapp.databinding.FragmentFirstBinding
+import com.example.prayertimesapp.secondpage.view.PrayerTimesFragment
+import com.example.prayertimesapp.utility.SharedPreference
 
 
 class FirstFragment : Fragment() {
@@ -46,6 +48,7 @@ class FirstFragment : Fragment() {
             val selectedCityItem = parent.getItemAtPosition(position).toString()
 
             Toast.makeText(requireContext(), "Selected: $selectedCityItem", Toast.LENGTH_SHORT).show()
+            SharedPreference.saveCity(requireContext(),selectedCityItem)
 
         }
 
@@ -63,6 +66,7 @@ class FirstFragment : Fragment() {
             val selectedCountryItem = parent.getItemAtPosition(position).toString()
 
             Toast.makeText(requireContext(), "Selected: $selectedCountryItem", Toast.LENGTH_SHORT).show()
+            SharedPreference.saveCountry(requireContext(),selectedCountryItem)
 
         }
 
@@ -104,13 +108,19 @@ class FirstFragment : Fragment() {
             val selectedCountry = parent.getItemAtPosition(position).toString()
             val methodId = calculationMethods[selectedCountry]
             Toast.makeText(requireContext(), "Selected $selectedCountry with Method ID $methodId", Toast.LENGTH_SHORT).show()
+            if (methodId != null) {
+                SharedPreference.saveMethod(requireContext(),methodId)
+            }
         }
 
-//        val calender = Calendar.getInstance()
-//
-//        val year = calender.get(Calendar.YEAR)
-//        val month = calender.get(Calendar.MONTH) + 1
 
+        binding.textButton.setOnClickListener {
+            val secondFragment =PrayerTimesFragment()
+            val transaction=requireActivity().supportFragmentManager
+                .beginTransaction()
+            transaction.replace(R.id.firstFragment2,secondFragment)
+            transaction.commit()
+        }
 
 
 
