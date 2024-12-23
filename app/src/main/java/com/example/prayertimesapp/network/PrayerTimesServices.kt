@@ -9,9 +9,10 @@ import retrofit2.http.Query
 interface PrayerTimesServices {
     @GET("calendarByCity")
     suspend fun getPrayerTimesForTheMonth(
-        @Path("year") year:Int,
-        @Path("month") month:Int,
-        @Query("city") city:String,
-        @Query("country") country:String,
-        @Query("method") method:Int):Response<PrayerTimes>
+        @Query("year") year: Int,
+        @Query("month") month: Int,
+        @Query("city") city: String,
+        @Query("country") country: String,
+        @Query("method") method: Int
+    ): Response<PrayerTimes>
 }

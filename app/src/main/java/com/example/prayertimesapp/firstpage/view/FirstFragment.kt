@@ -118,7 +118,7 @@ class FirstFragment : Fragment() {
             val secondFragment =PrayerTimesFragment()
             val transaction=requireActivity().supportFragmentManager
                 .beginTransaction()
-            transaction.replace(R.id.firstFragment2,secondFragment)
+            transaction.replace(R.id.main,secondFragment)
             transaction.commit()
         }
 

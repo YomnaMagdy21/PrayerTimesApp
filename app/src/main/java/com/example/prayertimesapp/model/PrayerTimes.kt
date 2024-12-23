@@ -28,7 +28,7 @@ data class PrayerTimings(
 
 data class DateInfo(
     val readable: String,
-    val timestamp: Long,
+    val timestamp: String, // Updated to String
     val gregorian: GregorianDate,
     val hijri: HijriDate
 )
@@ -47,22 +47,22 @@ data class HijriDate(
     val date: String,
     val format: String,
     val day: String,
-    val weekday: Weekday,
-    val month: Month,
+    val weekday: Weekday?,
+    val month: Month?,
     val year: String,
-    val designation: Designation,
+    val designation: Designation?,
     val holidays: List<String>?
 )
 
 data class Weekday(
     val en: String,
-    val ar: String?
+    val ar: String? // Arabic name is nullable
 )
 
 data class Month(
     val number: Int,
     val en: String,
-    val ar: String?
+    val ar: String? // Arabic name is nullable
 )
 
 data class Designation(
