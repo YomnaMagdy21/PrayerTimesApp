@@ -19,8 +19,8 @@ class DaysAdapter(var listener:OnDayClickListener): ListAdapter<PrayerData, Days
 //var context: Context
 
     lateinit var binding: DayItemBinding
-    class DayViewHolder( var binding: DayItemBinding) : RecyclerView.ViewHolder(binding.root)
 
+    class DayViewHolder(var binding: DayItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
@@ -28,29 +28,45 @@ class DaysAdapter(var listener:OnDayClickListener): ListAdapter<PrayerData, Days
         return DayViewHolder(binding)
     }
 
+    private var selectedPosition: Int = RecyclerView.NO_POSITION // Tracks the selected position
+
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
         val current = getItem(position)
         holder.binding.textView2.text = current.date.gregorian.day
         holder.binding.textView3.text = current.date.hijri.weekday?.ar
+
         val currentDay = current.date.gregorian.day.toInt()
-        val calender = Calendar.getInstance()
-        val day = calender.get(Calendar.DAY_OF_MONTH)
-        if (currentDay == day){
-            holder.binding.dayCardView.setBackgroundColor(Color.YELLOW)
+        val calendar = Calendar.getInstance()
+        val today = calendar.get(Calendar.DAY_OF_MONTH)
+
+
+        // Apply styles based on selection, current day, and default
+        if (position == selectedPosition) {
+            holder.binding.dayCardView.setBackgroundColor(Color.rgb(145, 186, 214)) // Selected color
+          //  holder.binding.dayCardView.strokeColor = Color.rgb(46, 89, 132)
+        } else if (currentDay == today && position != selectedPosition) {
+            holder.binding.dayCardView.setBackgroundColor(Color.rgb(188, 210, 232)) // Reset today's color if deselected
+            holder.binding.dayCardView.strokeColor =  Color.rgb(46, 89, 132)
         } else {
-            holder.binding.dayCardView.setBackgroundColor(Color.TRANSPARENT) // Reset color for other days
+            holder.binding.dayCardView.setBackgroundColor(Color.rgb(188, 210, 232)) // Default color
+            holder.binding.dayCardView.strokeColor = Color.TRANSPARENT
+        }
+
+        // Handle click event
+        holder.binding.dayCardView.setOnClickListener {
+            val previousSelectedPosition = selectedPosition
+            selectedPosition = holder.adapterPosition
+
+            // Notify the adapter to redraw the affected items
+            notifyItemChanged(previousSelectedPosition) // Redraw the previously selected item
+            notifyItemChanged(selectedPosition) // Redraw the newly selected item
+
+            listener.changeDay(currentDay)
         }
 
         Log.i("TAG", "onBindViewHolder: ${current.date.hijri.weekday?.ar}")
-
-        holder.binding.dayCardView.setOnClickListener {
-            listener.changeDay(currentDay+1)
-        }
-
-
     }
 }
-
 class DaysDiffUtil : DiffUtil.ItemCallback<PrayerData>() {
     override fun areItemsTheSame(oldItem: PrayerData, newItem: PrayerData): Boolean {
         return oldItem.date == newItem.date

@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#73A5C6"
     >
 
     <TextView
         android:id="@+id/prayerTimesText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="مواقيت الصلاه"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,6 +23,7 @@
         android:id="@+id/recViewDay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/prayerTimesText" />
@@ -30,7 +33,7 @@
         android:id="@+id/constraintLayout"
         android:layout_width="409dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="202dp"
+        android:layout_marginTop="180dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/prayerTimesText">
@@ -62,10 +65,13 @@
             android:id="@+id/fajrSwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
             android:checked="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="#2E5984"
+            app:trackTintMode="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -103,10 +109,14 @@
             android:id="@+id/sunriseSwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
             android:checked="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="#2E5984"
+            app:thumbTintMode="@color/black"
+            app:trackTintMode="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -145,10 +155,13 @@
             android:id="@+id/maghribSwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
             android:checked="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="#2E5984"
+            app:trackTintMode="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -186,10 +199,13 @@
             android:id="@+id/duhurSwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
             android:checked="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="#2E5984"
+            app:trackTintMode="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -227,10 +243,14 @@
             android:id="@+id/ishaSwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
             android:checked="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="#2E5984"
+            app:thumbTintMode="@color/black"
+            app:trackTintMode="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -268,10 +288,13 @@
             android:id="@+id/asrSwitch"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
             android:checked="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:thumbTint="#2E5984"
+            app:trackTintMode="@color/black" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--    <Button-->

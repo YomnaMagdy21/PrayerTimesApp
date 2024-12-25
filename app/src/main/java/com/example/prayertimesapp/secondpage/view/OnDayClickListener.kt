@@ -2,5 +2,5 @@ package com.example.prayertimesapp.secondpage.view
 
 interface OnDayClickListener {
 
-    fun changeDay(dayChosen:Int)
+    fun changeDay(daySelected:Int)
 }

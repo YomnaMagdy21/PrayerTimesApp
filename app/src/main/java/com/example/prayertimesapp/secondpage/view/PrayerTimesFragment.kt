@@ -18,15 +18,25 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prayertimesapp.DaysAdapter
 import com.example.prayertimesapp.R
+import com.example.prayertimesapp.database.PrayerTimesLocalDataSource
+import com.example.prayertimesapp.database.PrayerTimesLocalDataSourceImp
 import com.example.prayertimesapp.databinding.FragmentFirstBinding
 import com.example.prayertimesapp.databinding.FragmentPrayerTimesBinding
 import com.example.prayertimesapp.model.DateInfo
+import com.example.prayertimesapp.model.Designation
+import com.example.prayertimesapp.model.GregorianDate
+import com.example.prayertimesapp.model.HijriDate
+import com.example.prayertimesapp.model.Month
+import com.example.prayertimesapp.model.PrayerData
 import com.example.prayertimesapp.model.PrayerTimes
 import com.example.prayertimesapp.model.PrayerTimesRepositoryImp
+import com.example.prayertimesapp.model.PrayerTimings
+import com.example.prayertimesapp.model.Weekday
 import com.example.prayertimesapp.network.PrayerTimesRemoteDataSourceImp
 import com.example.prayertimesapp.secondpage.viewmodel.PrayerTimesViewModel
 import com.example.prayertimesapp.secondpage.viewmodel.PrayerTimesViewModelFactory
 import com.example.prayertimesapp.utility.ApiState
+import com.example.prayertimesapp.utility.NetworkConnection
 import com.example.prayertimesapp.utility.SharedPreference
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,33 +50,36 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener{
     lateinit var prayerTimesViewModel: PrayerTimesViewModel
     lateinit var prayerTimesViewModelFactory: PrayerTimesViewModelFactory
 
-    lateinit var city:String
-    lateinit var country:String
+     var city:String = "Aswan"
+     var country:String = "Egypt"
     var method:Int = 0
-    
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         prayerTimesViewModelFactory = PrayerTimesViewModelFactory(
             PrayerTimesRepositoryImp.getInstance(
-                PrayerTimesRemoteDataSourceImp.getInstance())
+                PrayerTimesRemoteDataSourceImp.getInstance(),
+                PrayerTimesLocalDataSourceImp(requireContext()))
             )
 
         prayerTimesViewModel = ViewModelProvider(this, prayerTimesViewModelFactory).get(PrayerTimesViewModel::class.java)
+
         val calender = Calendar.getInstance()
 
         val year = calender.get(Calendar.YEAR)
         val month = calender.get(Calendar.MONTH) + 1
-        city = SharedPreference.getCity(requireContext())
-        country = SharedPreference.getCountry(requireContext())
-        method = SharedPreference.getMethod(requireContext())
+//        city = SharedPreference.getCity(requireContext())
+//        country = SharedPreference.getCountry(requireContext())
+        // method = SharedPreference.getMethod(requireContext())
         Log.i("TAG", "onCreate:${year} ")
         Log.i("TAG", "onCreate:${month} ")
         Log.i("TAG", "onCreate:${city} ")
         Log.i("TAG", "onCreate:${country} ")
         Log.i("TAG", "onCreate:${method} ")
         prayerTimesViewModel.getPrayerTimesForCurrentMonth(year,month,city,country,method)
+
 
     }
 
@@ -84,103 +97,140 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener{
         super.onViewCreated(view, savedInstanceState)
 
 
-
+        if(NetworkConnection.checkNetworkConnection(requireContext())){
+          //  prayerTimesViewModel.deleteDataFromDatabase()
+            Log.i("TAG", "check network: is available")
         lifecycleScope.launch {
             prayerTimesViewModel.prayerTimes.collectLatest { result ->
-                when(result){
-                    is ApiState.Loading ->{
-                        Toast.makeText(requireContext(),"Loading...",Toast.LENGTH_SHORT).show()
+                when (result) {
+                    is ApiState.Loading -> {
+                        Toast.makeText(requireContext(), "Loading...", Toast.LENGTH_SHORT).show()
                     }
-                    is ApiState.Success<*> ->{
-                        val data = result.data as PrayerTimes
-                        Log.i("TAG", "onViewCreated: ${result.data.toString()}")
-                        val prayerTimes: List<PrayerTimes> = listOf(data)
-                        Log.i("TAG", "onViewCreated2: ${prayerTimes}")
-                        daysAdapter.submitList(data.data)
 
-                        val today =  Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-                        val day = data.data.get(today-1).date.gregorian.day.trim().toInt()
-
-                        Log.i("TAG", "Today: $today, Day from Data: $day")
-                        val fajr= data.data.get(0).timings.Fajr
-                        val fajrEdit = fajr.replace(Regex("\\s?\\(EET\\)"), " AM")
-                        val sunrise = data.data.get(0).timings.Sunrise
-                        val sunriseEdit = sunrise.replace(Regex("\\s?\\(EET\\)"), " AM")
-                        val duhur = data.data.get(0).timings.Dhuhr
-                        val duhurEdit = duhur.replace(Regex("\\s?\\(EET\\)"), " PM")
-                        val asr= data.data.get(0).timings.Asr
-                        val asrEdit = asr.replace(Regex("\\s?\\(EET\\)"), " PM")
-                        val maghrib = data.data.get(0).timings.Maghrib
-                        val maghribEdit = maghrib.replace(Regex("\\s?\\(EET\\)"), " PM")
-                        val isha = data.data.get(0).timings.Isha
-                        val ishaEdit = isha.replace(Regex("\\s?\\(EET\\)"), " PM")
-
-                         if(day == today){
-                            Log.i("TAG", "Today matched: $day")
-                            binding.fajerTime.text = fajrEdit
-                            binding.sunriseTime.text = sunriseEdit
-                            binding.dhuhrTime.text = duhurEdit
-                            binding.asrTime.text = asrEdit
-                            binding.maghribTime.text = maghribEdit
-                            binding.ishaTime.text = ishaEdit
-                        }
+                    is ApiState.Success<*> -> {
+                        val data = result.data as? PrayerTimes
+                        if (data != null) {
+                            Log.i("TAG", "onViewCreated: ${result.data.toString()}")
+                            val prayerTimes: List<PrayerTimes> = listOf(data)
+                            Log.i("TAG", "onViewCreated2: ${prayerTimes}")
 
 
-                        setupSwitchListeners("20:45",sunrise,"20:37","20:38",maghrib,"20:39")
 
-                        binding.fajrSwitch.setOnClickListener {
-                            if (binding.fajrSwitch.isChecked) {
-                                schedulePrayerNotifications("20:36", "الفجر")
-                            } else{
-                                cancelPrayerNotification("الفجر")
+                            //   prayerTimesViewModel.insertDataInDatabase(data.data)
+                            val prayerData: List<PrayerData> = data.data.map { prayerItem ->
+                                PrayerData(
+                                    timings = PrayerTimings(
+                                        Fajr = prayerItem.timings.Fajr,
+                                        Sunrise = prayerItem.timings.Sunrise,
+                                        Dhuhr = prayerItem.timings.Dhuhr,
+                                        Asr = prayerItem.timings.Asr,
+                                        Sunset = prayerItem.timings.Sunset,
+                                        Maghrib = prayerItem.timings.Maghrib,
+                                        Isha = prayerItem.timings.Isha,
+                                        Imsak = prayerItem.timings.Imsak,
+                                        Midnight = prayerItem.timings.Midnight
+                                    ),
+                                    date = DateInfo(
+                                        readable = prayerItem.date.readable,
+                                        timestamp = prayerItem.date.timestamp,
+                                        gregorian = prayerItem.date.gregorian,
+                                        hijri = prayerItem.date.hijri
+                                    )
+                                )
                             }
-                        }
-                        binding.sunriseSwitch.setOnClickListener {
-                            if (binding.sunriseSwitch.isChecked) {
-                                schedulePrayerNotifications(sunrise, "الشروق")
-                            } else{
-                                cancelPrayerNotification("الشروق")
-                            }
-                        }
-                        binding.duhurSwitch.setOnClickListener {
-                            if (binding.duhurSwitch.isChecked) {
-                                schedulePrayerNotifications("20:37", "الظهر")
-                            } else{
-                                cancelPrayerNotification("الظهر")
-                            }
-                        }
-                        binding.asrSwitch.setOnClickListener {
+                            // Insert the mapped data into the database
+                            prayerTimesViewModel.insertDataInDatabase(prayerData)
 
-                            if (binding.asrSwitch.isChecked) {
-                                schedulePrayerNotifications("20:38", "العصر")
-                            } else{
-                                cancelPrayerNotification("العصر")
-                            }
-                        }
-                        binding.maghribSwitch.setOnClickListener {
-                            if (binding.maghribSwitch.isChecked) {
-                                schedulePrayerNotifications(maghrib, "المغرب")
-                            } else{
-                                cancelPrayerNotification("المغرب")
-                            }
-                        }
-                        binding.ishaSwitch.setOnClickListener {
-                            if (binding.ishaSwitch.isChecked) {
-                                schedulePrayerNotifications("20:39", "العشاء")
-                            } else {
-                                cancelPrayerNotification("العشاء")
-                            }
+                            val insertedData = prayerTimesViewModel.getPrayerDataFromDatabase()
+                            Log.d("Database", "Inserted Data: $insertedData")
+                            daysAdapter.submitList(data.data)
+                            setUpData(data.data)
+
+
+
+//                            val testWeekday = Weekday(en = "Monday", ar = "الإثنين")
+//                            val testGregorian = GregorianDate(
+//                                date = "24-12-2024",
+//                                format = "dd-MM-yyyy",
+//                                day = "24",
+//                                weekday = testWeekday,
+//                                month = Month(12, "December", "ديسمبر"),
+//                                year = "2024",
+//                                designation = Designation("CE", "Common Era")
+//                            )
+//
+//                            Log.d("TestInsert", "Gregorian Date: $testGregorian")
+//                            prayerTimesViewModel.insertDataInDatabase(
+//                                listOf(PrayerData(
+//                                    id = 0,
+//                                    timings = PrayerTimings("5:00 AM", "6:15 AM", "12:00 PM", "3:45 PM", "5:30 PM", "6:15 PM", "8:00 PM", "4:30 AM", "12:30 AM"),
+//                                    date = DateInfo("24-12-2024", "timestamp", testGregorian, HijriDate("","","",
+//                                        Weekday("",""),
+//                                        Month(0,"",""),"",
+//                                        Designation("",""),
+//                                        listOf()
+//
+//                                    ))
+//                                ))
+//                            )
+
+
+                            //Log.d("RoomInsert", "Inserted rows: ${result1.size}")
+
                         }
 
                     }
-                    is ApiState.Failure ->{
+
+                    is ApiState.Failure -> {
                         val errorMessage = result.msg?.message ?: "Unknown error"
-                        Toast.makeText(requireContext(),"Failure!!!",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failure!!!", Toast.LENGTH_SHORT).show()
                         Log.e("TAG", "Error fetching prayer times: $errorMessage", result.msg)
 
                     }
                 }
+            }
+            }
+        } else{
+            Log.i("TAG", "check network: nottttt available")
+            prayerTimesViewModel.getPrayerDataFromDatabase()
+            val databaseData = prayerTimesViewModel.getPrayerDataFromDatabase()
+            Log.d("DatabaseCheck", "Data fetched from database: $databaseData")
 
+
+            lifecycleScope.launch {
+                prayerTimesViewModel.prayerTimes.collectLatest { result ->
+                    when (result) {
+                        is ApiState.Loading -> {
+                            Toast.makeText(requireContext(), "Loading...", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
+                        is ApiState.Success<*> -> {
+                            val data = result.data as? List<PrayerData>
+
+                            if(data != null) {
+                                Log.i("TAG", "onViewCreated: ${result.data.toString()}")
+//                                val prayerTimes: List<PrayerTimes> = listOf(data)
+//                                Log.i("TAG", "onViewCreated2: ${prayerTimes}")
+
+                                daysAdapter.submitList(data)
+                                setUpData(data)
+                            }else{
+                                Log.i("TAG", "check network: noooo  data")
+
+                            }
+
+                        }
+
+                        is ApiState.Failure -> {
+                            val errorMessage = result.msg?.message ?: "Unknown error"
+                            Toast.makeText(requireContext(), "Failure!!!", Toast.LENGTH_SHORT)
+                                .show()
+                            Log.e("TAG", "Error fetching prayer times: $errorMessage", result.msg)
+
+                        }
+                    }
+                }
             }
         }
 
@@ -189,6 +239,92 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener{
 
     }
 
+
+    private fun setUpData(data:List<PrayerData>){
+//          val fajr= data.get(0).timings.Fajr
+//        val sunrise = data.get(0).timings.Sunrise
+//        val duhur = data.get(0).timings.Dhuhr
+//        val asr= data.get(0).timings.Asr
+//        val maghrib = data.get(0).timings.Maghrib
+//        val isha = data.get(0).timings.Isha
+
+        val today =  Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+        val day = data.get(today-1).date.gregorian.day.trim().toInt()
+
+        Log.i("TAG", "Today: $today, Day from Data: $day")
+        val fajr= data.get(today-1).timings.Fajr
+        val fajrEdit = fajr.replace(Regex("\\s?\\(EET\\)"), " AM")
+        val sunrise = data.get(today-1).timings.Sunrise
+        val sunriseEdit = sunrise.replace(Regex("\\s?\\(EET\\)"), " AM")
+        val duhur = data.get(today-1).timings.Dhuhr
+        val duhurEdit = duhur.replace(Regex("\\s?\\(EET\\)"), " PM")
+        val asr= data.get(today-1).timings.Asr
+        val asrEdit = asr.replace(Regex("\\s?\\(EET\\)"), " PM")
+        val maghrib = data.get(today-1).timings.Maghrib
+        val maghribEdit = maghrib.replace(Regex("\\s?\\(EET\\)"), " PM")
+        val isha = data.get(today-1).timings.Isha
+        val ishaEdit = isha.replace(Regex("\\s?\\(EET\\)"), " PM")
+
+        if(day == today){
+            Log.i("TAG", "Today matched: $day")
+            binding.fajerTime.text = fajrEdit
+            binding.sunriseTime.text = sunriseEdit
+            binding.dhuhrTime.text = duhurEdit
+            binding.asrTime.text = asrEdit
+            binding.maghribTime.text = maghribEdit
+            binding.ishaTime.text = ishaEdit
+            //daysAdapter.submitList(prayerTimes.get(0).data)
+
+        }
+       // daysAdapter.submitList(data)
+
+
+        setupSwitchListeners(fajr,sunrise,duhur,asr,maghrib,isha)
+
+        binding.fajrSwitch.setOnClickListener {
+            if (binding.fajrSwitch.isChecked) {
+                schedulePrayerNotifications(fajr, "الفجر")
+            } else{
+                cancelPrayerNotification("الفجر")
+            }
+        }
+        binding.sunriseSwitch.setOnClickListener {
+            if (binding.sunriseSwitch.isChecked) {
+                schedulePrayerNotifications(sunrise, "الشروق")
+            } else{
+                cancelPrayerNotification("الشروق")
+            }
+        }
+        binding.duhurSwitch.setOnClickListener {
+            if (binding.duhurSwitch.isChecked) {
+                schedulePrayerNotifications(duhur, "الظهر")
+            } else{
+                cancelPrayerNotification("الظهر")
+            }
+        }
+        binding.asrSwitch.setOnClickListener {
+
+            if (binding.asrSwitch.isChecked) {
+                schedulePrayerNotifications(asr, "العصر")
+            } else{
+                cancelPrayerNotification("العصر")
+            }
+        }
+        binding.maghribSwitch.setOnClickListener {
+            if (binding.maghribSwitch.isChecked) {
+                schedulePrayerNotifications(maghrib, "المغرب")
+            } else{
+                cancelPrayerNotification("المغرب")
+            }
+        }
+        binding.ishaSwitch.setOnClickListener {
+            if (binding.ishaSwitch.isChecked) {
+                schedulePrayerNotifications(isha, "العشاء")
+            } else {
+                cancelPrayerNotification("العشاء")
+            }
+        }
+    }
     private fun setUpRecyclerViewDay() {
         daysAdapter = DaysAdapter(this)
         binding.recViewDay.apply {
@@ -199,7 +335,7 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener{
 
     }
 
-    override fun changeDay(dayChosen: Int) {
+    override fun changeDay(daySelected: Int) {
         lifecycleScope.launch {
             prayerTimesViewModel.prayerTimes.collectLatest { result ->
                 when(result){
@@ -207,22 +343,35 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener{
                         Toast.makeText(requireContext(),"Loading...",Toast.LENGTH_SHORT).show()
                     }
                     is ApiState.Success<*> ->{
-                        val data = result.data as PrayerTimes
+                        val data = result.data as? List<PrayerData>
 
+                        if (data != null) {
 
-                        // Get the correct day's prayer times
-                        val timings = data.data[dayChosen - 1].timings
+                            // Get the correct day's prayer times
+                            val timings = data.get(daySelected - 1).timings
 
-                        // Update TextViews with the selected day's timings
-                        binding.fajerTime.text = timings.Fajr.replace(Regex("\\s?\\(EET\\)"), " AM")
-                        binding.sunriseTime.text = timings.Sunrise.replace(Regex("\\s?\\(EET\\)"), " AM")
-                        binding.dhuhrTime.text = timings.Dhuhr.replace(Regex("\\s?\\(EET\\)"), " PM")
-                        binding.asrTime.text = timings.Asr.replace(Regex("\\s?\\(EET\\)"), " PM")
-                        binding.maghribTime.text = timings.Maghrib.replace(Regex("\\s?\\(EET\\)"), " PM")
-                        binding.ishaTime.text = timings.Isha.replace(Regex("\\s?\\(EET\\)"), " PM")
+                            // Update TextViews with the selected day's timings
+                            binding.fajerTime.text =
+                                timings.Fajr.replace(Regex("\\s?\\(EET\\)"), " AM")
+                            binding.sunriseTime.text =
+                                timings.Sunrise.replace(Regex("\\s?\\(EET\\)"), " AM")
+                            binding.dhuhrTime.text =
+                                timings.Dhuhr.replace(Regex("\\s?\\(EET\\)"), " PM")
+                            binding.asrTime.text =
+                                timings.Asr.replace(Regex("\\s?\\(EET\\)"), " PM")
+                            binding.maghribTime.text =
+                                timings.Maghrib.replace(Regex("\\s?\\(EET\\)"), " PM")
+                            binding.ishaTime.text =
+                                timings.Isha.replace(Regex("\\s?\\(EET\\)"), " PM")
 
+//                        binding.fajerTime.text = timings?.Fajr?.replace(Regex("\\s?\\(EET\\)"), " AM")
+//                        binding.sunriseTime.text = timings?.Sunrise?.replace(Regex("\\s?\\(EET\\)"), " AM")
+//                        binding.dhuhrTime.text = timings?.Dhuhr?.replace(Regex("\\s?\\(EET\\)"), " PM")
+//                        binding.asrTime.text = timings?.Asr?.replace(Regex("\\s?\\(EET\\)"), " PM")
+//                        binding.maghribTime.text = timings?.Maghrib?.replace(Regex("\\s?\\(EET\\)"), " PM")
+//                        binding.ishaTime.text = timings?.Isha?.replace(Regex("\\s?\\(EET\\)"), " PM")
 
-
+                        }
 
                     }
                     is ApiState.Failure ->{

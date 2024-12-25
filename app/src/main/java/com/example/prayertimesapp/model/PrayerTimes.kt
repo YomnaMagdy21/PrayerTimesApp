@@ -1,5 +1,8 @@
 package com.example.prayertimesapp.model
 
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 
 data class PrayerTimes(
@@ -8,12 +11,24 @@ data class PrayerTimes(
     val data: List<PrayerData>
 )
 
+@Entity(tableName = "prayer_times")
 data class PrayerData(
-    val timings: PrayerTimings,
-    val date: DateInfo,
-    val meta: MetaData
-)
+    @PrimaryKey(autoGenerate = true)
+    val id: Int? = null,  // Ensure a default value for auto-generated ID
 
+    val timings: PrayerTimings,
+
+    val date: DateInfo
+)
+//{
+//    constructor(prayerTimings: PrayerTimings,date: DateInfo) : this(0,
+//        PrayerTimings("","","","","","","","",""),
+//        DateInfo("","",
+//            GregorianDate("","","", Weekday("",""), Month(0,"",""),"", Designation("","")),
+//            HijriDate("","","",Weekday("",""),Month(0,"",""),"",Designation("",""),holidays = null)
+//        )
+//    )
+//}
 data class PrayerTimings(
     val Fajr: String,
     val Sunrise: String,
@@ -28,10 +43,13 @@ data class PrayerTimings(
 
 data class DateInfo(
     val readable: String,
-    val timestamp: String, // Updated to String
+    val timestamp: String,
+
     val gregorian: GregorianDate,
+
     val hijri: HijriDate
 )
+
 
 data class GregorianDate(
     val date: String,
@@ -56,13 +74,13 @@ data class HijriDate(
 
 data class Weekday(
     val en: String,
-    val ar: String? // Arabic name is nullable
+    val ar: String?
 )
 
 data class Month(
     val number: Int,
     val en: String,
-    val ar: String? // Arabic name is nullable
+    val ar: String?
 )
 
 data class Designation(
@@ -70,36 +88,7 @@ data class Designation(
     val expanded: String
 )
 
-data class MetaData(
-    val latitude: Double,
-    val longitude: Double,
-    val timezone: String,
-    val method: MethodInfo,
-    val latitudeAdjustmentMethod: String,
-    val midnightMode: String,
-    val school: String,
-    val offset: TimeOffset
-)
 
-data class MethodInfo(
-    val id: Int,
-    val name: String,
-    val params: MethodParams
-)
 
-data class MethodParams(
-    val Fajr: Double,
-    val Isha: String
-)
 
-data class TimeOffset(
-    val Imsak: String,
-    val Fajr: String,
-    val Sunrise: String,
-    val Dhuhr: String,
-    val Asr: String,
-    val Maghrib: String,
-    val Sunset: String,
-    val Isha: String,
-    val Midnight: String
-)
+
