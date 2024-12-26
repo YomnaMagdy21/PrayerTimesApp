@@ -1,20 +1,43 @@
 package com.example.prayertimesapp.firstpage.view
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.navigation.fragment.findNavController
 import com.example.prayertimesapp.R
 import com.example.prayertimesapp.databinding.FragmentFirstBinding
+import com.example.prayertimesapp.secondpage.view.PrayerTimesFragment
+import com.example.prayertimesapp.utility.PreferenceManager
+import com.example.prayertimesapp.utility.SharedPreference
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.material.snackbar.Snackbar
+import java.io.IOException
+import java.util.Calendar
+import java.util.Locale
 
 
 class FirstFragment : Fragment() {
 
     lateinit var binding:FragmentFirstBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -32,37 +55,54 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val preferenceManager = PreferenceManager(requireContext())
+        if (preferenceManager.isFirstTime()) {
+            binding.imageViewPrev.visibility = View.GONE
+            // Update the flag after navigating
+            preferenceManager.setFirstTime(false)
+        } else{
+            binding.imageViewPrev.visibility = View.VISIBLE
+
+            binding.imageViewPrev.setOnClickListener{
+                val secondFragment =PrayerTimesFragment()
+                val transaction=requireActivity().supportFragmentManager
+                    .beginTransaction()
+                transaction.replace(R.id.main,secondFragment)
+                transaction.commit()
+            }
+        }
+
+
         val cityList = listOf(
-            "Aswan",
-            "Alex",
-            "London",
-            "New York",
-            "Dubai"
+            "Alex", "Aswan", "London", "Dubai", "Paris", "Tokyo", "Berlin", "Sydney", "Rome", "Barcelona", "Moscow",
+            "Istanbul", "Madrid", "Melbourne", "Beijing", "Singapore", "Amsterdam", "Toronto", "Lagos", "Bangkok",
+            "Seoul", "Vienna", "Mumbai", "Jakarta", "Chicago", "Lisbon",
         )
+
 
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cityList)
         binding.cityInput.setAdapter(adapter)
         binding.cityInput.setOnItemClickListener{parent, view, position, id ->
             val selectedCityItem = parent.getItemAtPosition(position).toString()
 
-            Toast.makeText(requireContext(), "Selected: $selectedCityItem", Toast.LENGTH_SHORT).show()
+            SharedPreference.saveCity(requireContext(),selectedCityItem)
 
         }
 
         val countryList = listOf(
-            "Egypt",
-            "UK",
-            "USA",
-            "",
-            "UAE"
+            "Egypt", "UK", "UAE", "France", "Japan", "Germany", "Australia", "Italy", "Spain", "Russia", "Turkey", "Spain",
+            "Australia", "China", "Singapore", "Netherlands", "Canada", "Nigeria", "Thailand", "SK", "Austria", "India",
+            "Indonesia", "US", "Portugal"
         )
+
 
         val adapter2 = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
         binding.countryInput.setAdapter(adapter2)
         binding.countryInput.setOnItemClickListener{parent, view, position, id ->
             val selectedCountryItem = parent.getItemAtPosition(position).toString()
 
-            Toast.makeText(requireContext(), "Selected: $selectedCountryItem", Toast.LENGTH_SHORT).show()
+        //    Toast.makeText(requireContext(), "Selected: $selectedCountryItem", Toast.LENGTH_SHORT).show()
+            SharedPreference.saveCountry(requireContext(),selectedCountryItem)
 
         }
 
@@ -103,18 +143,73 @@ class FirstFragment : Fragment() {
         binding.methodInput.setOnItemClickListener { parent, view, position, id ->
             val selectedCountry = parent.getItemAtPosition(position).toString()
             val methodId = calculationMethods[selectedCountry]
-            Toast.makeText(requireContext(), "Selected $selectedCountry with Method ID $methodId", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(requireContext(), "Selected $selectedCountry with Method ID $methodId", Toast.LENGTH_SHORT).show()
+            if (methodId != null) {
+                SharedPreference.saveMethod(requireContext(),methodId)
+            }
         }
 
-//        val calender = Calendar.getInstance()
-//
-//        val year = calender.get(Calendar.YEAR)
-//        val month = calender.get(Calendar.MONTH) + 1
+// go to prayer times
+        binding.textButton.setOnClickListener {
 
+            val selectedCity = binding.cityInput.text.toString()
+            val selectedCountry = binding.countryInput.text.toString()
+            val selectedMethod = binding.methodInput.text.toString()
+
+            if (selectedCity.isEmpty()) {
+                Snackbar.make(binding.root, "Please select a city", Snackbar.LENGTH_LONG).show()
+            } else if (selectedCountry.isEmpty()) {
+                Snackbar.make(binding.root, "Please select a country", Snackbar.LENGTH_LONG).show()        }
+            else if (selectedMethod.isEmpty()) {
+                Snackbar.make(binding.root, "Please select a method", Snackbar.LENGTH_LONG).show()        }
+
+            else {
+                // Save the selected city
+                SharedPreference.saveCity(requireContext(), selectedCity)
+                SharedPreference.saveCountry(requireContext(), selectedCountry)
+                val methodId = calculationMethods[selectedMethod]
+                // Toast.makeText(requireContext(), "Selected $selectedCountry with Method ID $methodId", Toast.LENGTH_SHORT).show()
+                if (methodId != null) {
+                    SharedPreference.saveMethod(requireContext(),methodId)
+                }
+                // Continue with further logic
+                val secondFragment =PrayerTimesFragment()
+                val transaction=requireActivity().supportFragmentManager
+                    .beginTransaction()
+                transaction.replace(R.id.main,secondFragment)
+                transaction.commit()
+            }
+
+
+
+
+        }
+
+        // Save the selected option
+        binding.cardView1.findViewById<RadioGroup>(R.id.radioGroupAlert)
+            .setOnCheckedChangeListener { _, checkedId ->
+                when (checkedId) {
+                    R.id.notification -> {
+                        SharedPreference.saveAlarm(requireContext(), "n")
+                    }
+                    R.id.alarm -> {
+                        SharedPreference.saveAlarm(requireContext(), "a")
+                    }
+                }
+            }
+
+// Restore the selected option
+        val savedAlarm = SharedPreference.getAlarm(requireContext()) // Retrieve the saved value
+        when (savedAlarm) {
+            "n" -> binding.cardView1.findViewById<RadioButton>(R.id.notification).isChecked = true
+            "a" -> binding.cardView1.findViewById<RadioButton>(R.id.alarm).isChecked = true
+        }
 
 
 
     }
+
+
 
 
 }

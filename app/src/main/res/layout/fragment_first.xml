@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/skyBlue"
     >
 
     <!-- Label for City and Country -->
@@ -16,7 +17,7 @@
         android:text=" المدينه"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textSetting" />
 
     <!-- Combined Dropdown for City and Country -->
     <com.google.android.material.textfield.TextInputLayout
@@ -25,7 +26,7 @@
         android:layout_width="380dp"
         android:layout_height="wrap_content"
         android:hint="المدينه "
-        app:boxBackgroundColor="@color/white"
+        app:boxBackgroundColor="@color/babyBlue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/prayerTimesText"
@@ -56,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:hint="الدوله"
-        app:boxBackgroundColor="@color/white"
+        app:boxBackgroundColor="@color/babyBlue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4">
@@ -87,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:hint="الطريقة"
-        app:boxBackgroundColor="@color/white"
+        app:boxBackgroundColor="@color/babyBlue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
@@ -100,20 +101,92 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView1"
+        android:layout_width="380dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+
+        android:layout_marginEnd="16dp"
+
+        android:backgroundTint="@color/babyBlue"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView8">
+
+        <RadioGroup
+            android:id="@+id/radioGroupAlert"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RadioButton
+                android:id="@+id/notification"
+                android:layout_width="360dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_horizontal"
+                android:text="اشعار"
+                android:textColor="@color/black"
+                android:textSize="24sp" />
+
+            <RadioButton
+                android:id="@+id/alarm"
+                android:layout_width="360dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start|center_horizontal"
+                android:layout_marginTop="10dp"
+
+                android:text="منبه"
+                android:textSize="24sp" />
+        </RadioGroup>
+    </androidx.cardview.widget.CardView>
+
     <Button
         android:id="@+id/textButton"
 
         style="?attr/materialButtonOutlinedStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="ارسال"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/babyBlue"
         android:inputType="text"
-
+        android:text="ارسال"
         android:textColor="@color/black"
-        android:backgroundTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView1" />
+
+    <TextView
+        android:id="@+id/textSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text=" الاعدادات"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="طريقة التنبيه"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/menu3" />
+
+    <ImageView
+        android:id="@+id/imageViewPrev"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/prev" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
