@@ -1,6 +1,13 @@
 package com.example.prayertimesapp.firstpage.view
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,17 +16,28 @@ import android.widget.ArrayAdapter
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.navigation.fragment.findNavController
 import com.example.prayertimesapp.R
 import com.example.prayertimesapp.databinding.FragmentFirstBinding
 import com.example.prayertimesapp.secondpage.view.PrayerTimesFragment
+import com.example.prayertimesapp.utility.PreferenceManager
 import com.example.prayertimesapp.utility.SharedPreference
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.Snackbar
+import java.io.IOException
+import java.util.Calendar
+import java.util.Locale
 
 
 class FirstFragment : Fragment() {
 
     lateinit var binding:FragmentFirstBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,6 +54,24 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val preferenceManager = PreferenceManager(requireContext())
+        if (preferenceManager.isFirstTime()) {
+            binding.imageViewPrev.visibility = View.GONE
+            // Update the flag after navigating
+            preferenceManager.setFirstTime(false)
+        } else{
+            binding.imageViewPrev.visibility = View.VISIBLE
+
+            binding.imageViewPrev.setOnClickListener{
+                val secondFragment =PrayerTimesFragment()
+                val transaction=requireActivity().supportFragmentManager
+                    .beginTransaction()
+                transaction.replace(R.id.main,secondFragment)
+                transaction.commit()
+            }
+        }
+
 
         val cityList = listOf(
             "Alex", "Aswan", "London", "Dubai", "Paris", "Tokyo", "Berlin", "Sydney", "Rome", "Barcelona", "Moscow",
@@ -116,11 +152,34 @@ class FirstFragment : Fragment() {
 // go to prayer times
         binding.textButton.setOnClickListener {
 
+            val selectedCity = binding.cityInput.text.toString()
+            val selectedCountry = binding.countryInput.text.toString()
+            val selectedMethod = binding.methodInput.text.toString()
+
+            if (selectedCity.isEmpty()) {
+                Snackbar.make(binding.root, "Please select a city", Snackbar.LENGTH_LONG).show()
+            } else if (selectedCountry.isEmpty()) {
+                Snackbar.make(binding.root, "Please select a country", Snackbar.LENGTH_LONG).show()        }
+            else if (selectedMethod.isEmpty()) {
+                Snackbar.make(binding.root, "Please select a method", Snackbar.LENGTH_LONG).show()        }
+
+            else {
+                // Save the selected city
+                SharedPreference.saveCity(requireContext(), selectedCity)
+                SharedPreference.saveCountry(requireContext(), selectedCountry)
+                val methodId = calculationMethods[selectedMethod]
+                // Toast.makeText(requireContext(), "Selected $selectedCountry with Method ID $methodId", Toast.LENGTH_SHORT).show()
+                if (methodId != null) {
+                    SharedPreference.saveMethod(requireContext(),methodId)
+                }
+                // Continue with further logic
                 val secondFragment =PrayerTimesFragment()
                 val transaction=requireActivity().supportFragmentManager
                     .beginTransaction()
                 transaction.replace(R.id.main,secondFragment)
                 transaction.commit()
+            }
+
 
 
 
@@ -149,6 +208,8 @@ class FirstFragment : Fragment() {
 
 
     }
+
+
 
 
 }

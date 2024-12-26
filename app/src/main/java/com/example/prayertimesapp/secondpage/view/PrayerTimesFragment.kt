@@ -60,14 +60,6 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener {
     lateinit var city: String
     lateinit var country: String
     var method: Int = 0
-    private val LOCATION_PERMISSION_REQUEST_CODE = 101
-    lateinit var geocoder: Geocoder
-    private lateinit var fusedClient: FusedLocationProviderClient
-    var locationRequestID = 5
-
-    private lateinit var locationCallback: LocationCallback
-
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,10 +78,6 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener {
 
 
 
-        // Initialize fusedLocationClient
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-
-
     }
 
     override fun onCreateView(
@@ -98,30 +86,7 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentPrayerTimesBinding.inflate(inflater, container, false)
-        // Check and request location permission
-        geocoder = Geocoder(requireContext(), Locale.getDefault())
 
-        fusedClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireContext() as Activity,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ), locationRequestID
-            )
-
-        }
-        getFreshLocation()
         setUpRecyclerViewDay()
 
         city = SharedPreference.getCity(requireContext())
@@ -235,9 +200,6 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener {
 
                             if (data != null) {
                                 Log.i("TAG", "onViewCreated: ${result.data.toString()}")
-//                                val prayerTimes: List<PrayerTimes> = listOf(data)
-//                                Log.i("TAG", "onViewCreated2: ${prayerTimes}")
-
                                 daysAdapter.submitList(data)
                                 setUpData(data)
                             } else {
@@ -493,123 +455,7 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener {
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-        } else {
-            getFreshLocation()
-        }
-    }
 
-
-    @SuppressLint("MissingPermission")
-    fun getFreshLocation() {
-        fusedClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        val locationRequest: LocationRequest = LocationRequest.Builder(100000000000).apply {
-            setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-        }.build()
-
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                val lastLocation = locationResult.lastLocation
-                if (lastLocation != null) {
-                    val latitude = lastLocation.latitude
-                    val longitude = lastLocation.longitude
-
-                    // Use Geocoder to get the city name
-                    val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                    try {
-                        val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-                        if (addresses != null && addresses.isNotEmpty()) {
-                            val address = addresses[0]
-                            val city = address.locality // Gets the city name
-                            val country = address.countryName // Gets the country name
-                            // You can now use the city and country
-                            Log.d("Location", "City: $city, Country: $country")
-                            method = SharedPreference.getMethod(requireContext())
-
-                            Log.i("TAG", "City: $city, Country: $country, Method: $method")
-
-                            // Pass data to ViewModel
-                            val year = Calendar.getInstance().get(Calendar.YEAR)
-                            val month = Calendar.getInstance().get(Calendar.MONTH) + 1
-
-                            prayerTimesViewModel.getPrayerTimesForCurrentMonth(
-                                year,
-                                month,
-                                city,
-                                country,
-                                method
-                            )
-
-                        }
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                        // Handle exception (e.g., no network, etc.)
-                    }
-                }
-            }
-        }
-
-        // First try to get the last known location
-        fusedClient.lastLocation.addOnSuccessListener { lastLocation ->
-            if (lastLocation != null) {
-                val latitude = lastLocation.latitude
-                val longitude = lastLocation.longitude
-                // Proceed with the same Geocoder code as above  val geocoder = Geocoder(requireContext(), Locale.getDefault())
-                try {
-                    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-                    if (addresses != null && addresses.isNotEmpty()) {
-                        val address = addresses[0]
-                        val city = address.locality // Gets the city name
-                        val country = address.countryName // Gets the country name
-                        // You can now use the city and country
-                        Log.d("Location", "City: $city, Country: $country")
-                        method = SharedPreference.getMethod(requireContext())
-
-                        Log.i("TAG", "City: $city, Country: $country, Method: $method")
-
-                        // Pass data to ViewModel
-                        val year = Calendar.getInstance().get(Calendar.YEAR)
-                        val month = Calendar.getInstance().get(Calendar.MONTH) + 1
-
-                        prayerTimesViewModel.getPrayerTimesForCurrentMonth(
-                            year,
-                            month,
-                            city,
-                            country,
-                            method
-                        )
-
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    // Handle exception (e.g., no network, etc.)
-                }
-            }
-                    else {
-                        // Last location is unavailable, so request a fresh location update
-                        fusedClient.requestLocationUpdates(
-                            locationRequest,
-                            locationCallback,
-                            Looper.myLooper()
-                        )
-                    }
-
-                }
-            }
         }
 
 

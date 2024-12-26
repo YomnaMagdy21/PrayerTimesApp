@@ -1,6 +1,7 @@
 package com.example.prayertimesapp.utility
 
 import android.content.Context
+import android.content.SharedPreferences
 
 object SharedPreference {
 
@@ -45,4 +46,20 @@ object SharedPreference {
     }
 
 
+
+}
+
+
+class PreferenceManager(context: Context) {
+
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+
+    fun isFirstTime(): Boolean {
+        return sharedPreferences.getBoolean("isFirstTime", true)
+    }
+
+    fun setFirstTime(isFirstTime: Boolean) {
+        sharedPreferences.edit().putBoolean("isFirstTime", isFirstTime).apply()
+    }
 }
