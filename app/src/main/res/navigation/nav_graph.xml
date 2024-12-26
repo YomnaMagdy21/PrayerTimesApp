@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/prayerTimesFragment">
+    app:startDestination="@id/splashFragment">
     <fragment
         android:id="@+id/firstFragment2"
         android:name="com.example.prayertimesapp.firstpage.view.FirstFragment"
@@ -14,4 +14,10 @@
         android:name="com.example.prayertimesapp.secondpage.view.PrayerTimesFragment"
         android:label="PrayerTimesFragment"
         tools:layout="@layout/fragment_prayer_times"/>
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.prayertimesapp.firstpage.view.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" />
+
 </navigation>

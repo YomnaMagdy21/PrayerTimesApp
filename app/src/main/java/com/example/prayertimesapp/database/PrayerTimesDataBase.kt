@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.example.prayertimesapp.model.PrayerData
 
 
-@Database(entities = [PrayerData::class], version = 6 )
+@Database(entities = [PrayerData::class], version = 7 )
 @TypeConverters(PrayerTimesDataConverter::class)
 abstract class PrayerTimesDataBase : RoomDatabase() {
     abstract fun getPrayerTimesDao(): PrayerTimesDAO

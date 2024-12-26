@@ -14,7 +14,7 @@ data class PrayerTimes(
 @Entity(tableName = "prayer_times")
 data class PrayerData(
     @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,  // Ensure a default value for auto-generated ID
+    val id: Long? = null,  // Ensure a default value for auto-generated ID
 
     val timings: PrayerTimings,
 

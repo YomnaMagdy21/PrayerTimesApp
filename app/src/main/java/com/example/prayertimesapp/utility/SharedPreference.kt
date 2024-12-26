@@ -11,7 +11,7 @@ object SharedPreference {
 
     fun getCity(context: Context): String {
         val prefs = context.getSharedPreferences("cityPref", Context.MODE_PRIVATE)
-        return prefs.getString("city", "") ?: ""
+        return prefs.getString("city", "") ?: "Alex"
     }
 
     fun saveCountry(context: Context,country:String){
@@ -21,7 +21,7 @@ object SharedPreference {
 
     fun getCountry(context: Context): String {
         val prefs = context.getSharedPreferences("countryPref", Context.MODE_PRIVATE)
-        return prefs.getString("country", "") ?: ""
+        return prefs.getString("country", "") ?: "Egypt"
     }
 
     fun saveMethod(context: Context,number:Int){
@@ -33,4 +33,16 @@ object SharedPreference {
         val prefs = context.getSharedPreferences("methodPref", Context.MODE_PRIVATE)
         return prefs.getInt("method", 0) ?: 0
     }
+
+    fun saveAlarm(context: Context,str:String){
+        val prefs = context.getSharedPreferences("alarmPref", Context.MODE_PRIVATE)
+        prefs.edit().putString("alarm",str).apply()
+    }
+
+    fun getAlarm(context: Context): String {
+        val prefs = context.getSharedPreferences("alarmPref", Context.MODE_PRIVATE)
+        return prefs.getString("alarm", "") ?: ""
+    }
+
+
 }

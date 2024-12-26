@@ -32,6 +32,10 @@
         tools:targetApi="31">
 
         <receiver android:name=".secondpage.view.PrayerTimesNotificationReceiver" />
+        <service android:name=".secondpage.view.SoundService" android:enabled="true" android:exported="false"/>
+
+        <receiver android:name=".secondpage.view.NotificationCancelReceiver" android:enabled="true" android:exported="false" />
+
 
         <activity
             android:name=".MainActivity"

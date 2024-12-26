@@ -3,6 +3,9 @@
     <style name="Base.Theme.PrayerTimesApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<!--        <item name="colorAccent">@color/skyBlue</item>-->
+        <item name="colorPrimary">@color/skyBlue</item>
+<!--        <item name="colorOnPrimary">@color/skyBlue</item>-->
     </style>
 
     <style name="Theme.PrayerTimesApp" parent="Base.Theme.PrayerTimesApp" />
