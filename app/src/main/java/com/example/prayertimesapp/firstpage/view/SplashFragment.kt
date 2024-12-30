@@ -13,8 +13,9 @@ import com.example.prayertimesapp.R
 import com.example.prayertimesapp.databinding.FragmentSplashBinding
 import com.example.prayertimesapp.utility.PreferenceManager
 import com.example.prayertimesapp.utility.SharedPreference
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class SplashFragment : Fragment() {
 
 

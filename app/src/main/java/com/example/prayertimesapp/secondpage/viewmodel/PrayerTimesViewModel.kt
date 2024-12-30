@@ -6,14 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.example.prayertimesapp.model.PrayerData
 import com.example.prayertimesapp.model.PrayerTimesRepository
 import com.example.prayertimesapp.utility.ApiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PrayerTimesViewModel  (private val _repo: PrayerTimesRepository): ViewModel(){
+@HiltViewModel
+class PrayerTimesViewModel  @Inject constructor(private val _repo: PrayerTimesRepository): ViewModel(){
 
     private var _prayerTimes: MutableStateFlow<ApiState> = MutableStateFlow(ApiState.Loading)
     val prayerTimes:StateFlow<ApiState> = _prayerTimes

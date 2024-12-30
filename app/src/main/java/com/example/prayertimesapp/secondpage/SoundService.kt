@@ -6,7 +6,9 @@ import android.media.MediaPlayer
 import android.os.IBinder
 import android.util.Log
 import android.net.Uri
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SoundService : Service() {
 
     private var mediaPlayer: MediaPlayer? = null

@@ -30,11 +30,12 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.IOException
 import java.util.Calendar
 import java.util.Locale
 
-
+@AndroidEntryPoint
 class FirstFragment : Fragment() {
 
     lateinit var binding:FragmentFirstBinding

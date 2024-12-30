@@ -30,11 +30,12 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import com.example.prayertimesapp.R
 import com.example.prayertimesapp.utility.SharedPreference
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+@AndroidEntryPoint
 class PrayerTimesNotificationReceiver : BroadcastReceiver() {
 
     lateinit var   btnCancel:Button

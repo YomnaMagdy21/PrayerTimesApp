@@ -33,7 +33,6 @@ import com.example.prayertimesapp.model.PrayerTimesRepositoryImp
 import com.example.prayertimesapp.model.PrayerTimings
 import com.example.prayertimesapp.network.PrayerTimesRemoteDataSourceImp
 import com.example.prayertimesapp.secondpage.viewmodel.PrayerTimesViewModel
-import com.example.prayertimesapp.secondpage.viewmodel.PrayerTimesViewModelFactory
 import com.example.prayertimesapp.utility.ApiState
 import com.example.prayertimesapp.utility.NetworkConnection
 import com.example.prayertimesapp.utility.SharedPreference
@@ -43,19 +42,20 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Calendar
 import java.util.Locale
 
-
+@AndroidEntryPoint
 class PrayerTimesFragment : Fragment() ,OnDayClickListener {
 
     lateinit var binding: FragmentPrayerTimesBinding
     lateinit var daysAdapter: DaysAdapter
     lateinit var prayerTimesViewModel: PrayerTimesViewModel
-    lateinit var prayerTimesViewModelFactory: PrayerTimesViewModelFactory
+  //  lateinit var prayerTimesViewModelFactory: PrayerTimesViewModelFactory
 
     lateinit var city: String
     lateinit var country: String
@@ -64,16 +64,15 @@ class PrayerTimesFragment : Fragment() ,OnDayClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        prayerTimesViewModelFactory = PrayerTimesViewModelFactory(
-            PrayerTimesRepositoryImp.getInstance(
-                PrayerTimesRemoteDataSourceImp.getInstance(),
-                PrayerTimesLocalDataSourceImp(requireContext())
-            )
-        )
+//        prayerTimesViewModelFactory = PrayerTimesViewModelFactory(
+//            PrayerTimesRepositoryImp.getInstance(
+//                PrayerTimesRemoteDataSourceImp.getInstance(),
+//                PrayerTimesLocalDataSourceImp(requireContext())
+//            )
+//        )
 
         prayerTimesViewModel = ViewModelProvider(
-            this,
-            prayerTimesViewModelFactory
+            this
         ).get(PrayerTimesViewModel::class.java)
 
 

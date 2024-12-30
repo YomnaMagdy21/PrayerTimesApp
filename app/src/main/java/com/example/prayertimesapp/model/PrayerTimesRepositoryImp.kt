@@ -3,24 +3,25 @@ package com.example.prayertimesapp.model
 import com.example.prayertimesapp.database.PrayerTimesLocalDataSource
 import com.example.prayertimesapp.network.PrayerTimesRemoteDataSource
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class PrayerTimesRepositoryImp(private var prayerTimesRemoteDataSource: PrayerTimesRemoteDataSource,
+class PrayerTimesRepositoryImp @Inject constructor(private var prayerTimesRemoteDataSource: PrayerTimesRemoteDataSource,
     private var prayerTimesLocalDataSource: PrayerTimesLocalDataSource): PrayerTimesRepository {
 
-    companion object{
-        private var instance:PrayerTimesRepositoryImp?=null
-        fun getInstance(
-            prayerTimesRemoteDataSource: PrayerTimesRemoteDataSource,
-            prayerTimesLocalDataSource: PrayerTimesLocalDataSource
-        ):PrayerTimesRepositoryImp{
-            return instance?: synchronized(this){
-                val temp=PrayerTimesRepositoryImp(
-                    prayerTimesRemoteDataSource, prayerTimesLocalDataSource)
-                instance=temp
-                temp
-            }
-        }
-    }
+//    companion object{
+//        private var instance:PrayerTimesRepositoryImp?=null
+//        fun getInstance(
+//            prayerTimesRemoteDataSource: PrayerTimesRemoteDataSource,
+//            prayerTimesLocalDataSource: PrayerTimesLocalDataSource
+//        ):PrayerTimesRepositoryImp{
+//            return instance?: synchronized(this){
+//                val temp=PrayerTimesRepositoryImp(
+//                    prayerTimesRemoteDataSource, prayerTimesLocalDataSource)
+//                instance=temp
+//                temp
+//            }
+//        }
+//    }
 
     override fun getPrayerTimes(
         year: Int,
